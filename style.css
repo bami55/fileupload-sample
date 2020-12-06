@@ -1,0 +1,12 @@
+body {
+  font-family: 'Quicksand', sans-serif;
+}
+
+.nav {
+  display: inline-flex;
+  list-style: none;
+}
+
+.nav li {
+  margin-right: 30px;
+}

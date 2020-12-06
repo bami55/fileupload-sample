@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom File Upload Button</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      .file-upload {
+        display: inline-flex;
+        align-items: center;
+        font-size: 15px;
+      }
+
+      .file-upload__input {
+        display: none;
+      }
+
+      .file-upload__button {
+        background: #009879;
+        border: 2px solid #00745d;
+        border-radius: 4px;
+        outline: none;
+        padding: 0.5em 0.8em;
+        margin-right: 15px;
+        color: #ffffff;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .file-upload__button:active {
+        background: #00745d;
+      }
+
+      .file-upload__label {
+        max-width: 250px;
+        font-size: 0.95em;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <ul class="nav">
+      <li><a href="./custom_button.html">Custom Button</a></li>
+      <li><a href="./drop_file.html">Drop File</a></li>
+    </ul>
+    <h1>Custom File Upload Button w/ File List</h1>
+    <div class="file-upload">
+      <input class="file-upload__input" type="file" name="myFile[]" id="myFile" multiple />
+      <button class="file-upload__button" type="button">Choose File(s)</button>
+      <span class="file-upload__label">No file(s) selected</span>
+    </div>
+
+    <script>
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.file-upload__button'),
+        function (button) {
+          const hiddenInput = button.parentElement.querySelector('.file-upload__input');
+          const label = button.parentElement.querySelector('.file-upload__label');
+          const defaultLabelText = 'No file(s) selected';
+
+          label.textContent = defaultLabelText;
+          label.title = defaultLabelText;
+
+          button.addEventListener('click', function () {
+            hiddenInput.click();
+          });
+
+          hiddenInput.addEventListener('change', function () {
+            const filenameList = Array.prototype.map.call(hiddenInput.files, function (file) {
+              return file.name;
+            });
+
+            label.textContent = filenameList.join(', ');
+          });
+        }
+      );
+    </script>
+  </body>
+</html>
