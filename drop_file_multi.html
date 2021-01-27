@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom File Upload Button</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      .button {
+        background: #009879;
+        border: 2px solid #00745d;
+        border-radius: 4px;
+        outline: none;
+        padding: 0.5em 0.8em;
+        margin-bottom: 0.8em;
+        color: #ffffff;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .button:active {
+        background: #00745d;
+      }
+
+      .drop-zone {
+        max-width: 500px;
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 500;
+        font-size: 20px;
+        cursor: pointer;
+        color: #cccccc;
+        border: 4px dashed #009578;
+        border-radius: 10px;
+      }
+
+      .drop-zone--over {
+        border-style: solid;
+      }
+
+      .drop-zone__input {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <ul class="nav">
+      <li><a href="./custom_button.html">Custom Button</a></li>
+      <li><a href="./drop_file.html">Drop File</a></li>
+      <li><a href="./drop_file_multi.html">Drop File Multi</a></li>
+    </ul>
+    <h1>Drop File Multi</h1>
+    <button type="button" class="button" id="btn_upload">Upload</button>
+    <form method="post" action="/" name="upload_form" id="id_upload_form" enctype="multipart/form-data">
+      <div class="drop-zone">
+        ファイルをここにドラッグ&ドロップ（複数選択可）<br />
+        または選択
+        <input type="file" class="drop-zone__input" name="myFile[]" id="myFile" multiple />
+      </div>
+    </form>
+    <div>
+      <h2>File List</h2>
+      <ul id="fileList"></ul>
+    </div>
+
+  <script>
+    // ファイル一覧生成
+    function createFileItem(file) {
+      const ulFileList = document.getElementById('fileList');
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = file.name;
+      li.appendChild(span);
+      ulFileList.appendChild(li);
+    }
+
+    // ランダム文字列生成
+    function randomstr(length) {
+      let s = "";
+      length = length || 32;
+      for (i = 0; i < length; i++) {
+        random = Math.random() * 16 | 0;
+        s += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+      }
+      return s;
+    }
+
+    // ファイルローカルストレージ
+    let fileStorage = {};
+
+    // ファイルドラッグ＆ドロップ
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.drop-zone__input'),
+      function (inputElement) {
+        const dropZoneElement = inputElement.parentElement.parentElement.querySelector(
+          '.drop-zone'
+        );
+
+        dropZoneElement.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          dropZoneElement.classList.add('drop-zone--over');
+        });
+
+        ['dragleave', 'dragend'].forEach(function (type) {
+          dropZoneElement.addEventListener(type, function (e) {
+            dropZoneElement.classList.remove('drop-zone--over');
+          });
+        });
+
+        dropZoneElement.addEventListener('drop', function (e) {
+          e.preventDefault();
+          const files = e.dataTransfer.files;
+          for (let i = 0; i < files.length; i++) {
+            const file = files.item(i);
+            const file_key = randomstr();
+            createFileItem(file);
+            fileStorage[file_key] = file;
+          }
+          dropZoneElement.classList.remove('drop-zone--over');
+        });
+      }
+    );
+
+    // ファイル選択クリック
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.drop-zone'),
+      function (drop) {
+        const hiddenInput = drop.parentElement.querySelector('.drop-zone__input');
+        drop.addEventListener('click', function () {
+          hiddenInput.click();
+        });
+
+        hiddenInput.addEventListener('change', function () {
+          const filenameList = Array.prototype.map.call(hiddenInput.files, function (file) {
+            const file_key = randomstr();
+            createFileItem(file);
+            fileStorage[file_key] = file;
+          });
+        });
+      }
+    );
+
+    // アップロードボタンクリック
+    document.getElementById('btn_upload').addEventListener('click', function () {
+      let _data = new FormData(document.getElementById('id_upload_form'));
+      Object.entries(fileStorage).forEach(function ([key, value]) {
+        console.log(`key: ${key}, value: ${value.name}`);
+        const f = fileStorage[key];
+        _data.append('file', f, f.name);
+      });
+    });
+    </script>
+  </body>
+</html>
